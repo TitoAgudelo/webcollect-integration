@@ -1,0 +1,515 @@
+
+<!-- saved from url=(0056)file:///Users/joshleifeste/Downloads/WS_Unsubscribe.html -->
+<html><head><meta http-equiv="Content-Type" content="text/html; charset=windows-1252"></head><body bgcolor="#FFFFFF" leftmargin="0" topmargin="0" marginwidth="0" marginheight="0">%%[
+	/* set up the link to our subscription center microsite pages */
+	set @subCenter = micrositeUrl(6396)
+	set @dekey = "Subscribers"
+]%%
+
+<script type="text/javascript" runat="server">
+	Platform.Load("core", "1");
+	
+	// default to whether an error has occurred during save.
+	var isError = "";
+
+	// get all the lists 
+    var allPublicationLists = List.Retrieve(); 	//Write(Stringify(allPublicationLists));
+
+
+	// set a variable for the length of the array that was returned that is holding all the lists.
+    var length = allPublicationLists.length;
+
+	// get the attribute value subscriberkey and e-mail address, then set it to ssjs variable so we can look this subscriber up
+	var sk = Platform.Recipient.GetAttributeValue("_subscriberKey");
+
+	// initiate the subscriber object 
+	var subObj = Subscriber.Init(sk);
+	// get the subscriber's Lists which contains subscriber status
+	var sublists = subObj.Lists.Retrieve();
+
+	// we are assuming that the 0 index of the array will always hold All Subscribers list (which it should).
+	var unsubFromAllStatus = sublists[0].Status;
+
+	// turns the form variable submit button into js variable, so when page is submitted, we can check to see if our formSave var exists.
+	var formSave = Platform.Request.GetFormField("submitForm");
+	var formSaveUnSub = Platform.Request.GetFormField("submitFormUnSub");
+
+	// FORM SUBMISSION START - FORM SUBMISSION START
+	// if user clicked save button, then we want to get the form field information and convert into js variables
+	if(formSave != undefined || formSaveUnSub != undefined)		{
+
+		// holds the list that we will be updating 
+		var ListToUpdate = new Array();
+		// holds the list that we will be updating 
+		var ListToUpdateDE = new Array();
+		// get the lists that the user checked
+		var checkedLists =  Platform.Request.GetFormField("publicationList");
+		// get all lists that were available to the user 
+		var allLists =  Platform.Request.GetFormField("allLists");
+
+		var aAllLists = allLists.split(',');
+
+		//  find out whether the user checked the unsubfromall checkbox
+		var unsubFromAll = Request.GetFormField("unsubFromAll");
+		var bid = Attribute.GetValue("_JobSubscriberBatchID");
+		var lid = Attribute.GetValue("listid");
+		var jid = Attribute.GetValue("jobid");
+
+		// did they check any lists?
+		if(checkedLists.length > 0) {
+			var aCheckedLists = checkedLists.split(',');
+		} else {
+			var aCheckedLists = [];
+		}
+
+		// we need to loop through all lists so that we can unsubscribe the user if they are on the list and also did not check the corresponding box for that list
+		for (var i = 0; i < length; i++) {
+			// set a list variable equal to the current iteration within the allPublicationLists array
+			var list = allPublicationLists[i];
+
+			// skip private lists
+			if (list.Type == "Private" ) continue;
+
+			// set this to say that the user has not checked this list.
+			var checkedThisList = false;
+
+			//loop through the lists that the user checked before submitting the page
+			for (var c=0; c < aCheckedLists.length; c++) {
+				// did the user check this public list?  If so, let's add that the list to our ListToUpdate array
+				if(aCheckedLists[c] == list.ID) {
+					// Write("User Checked List ID: " + list.ID + "<br>");
+					ListToUpdate.push( { 'Status': 'Active', 'ID': list.ID, 'Action': 'Upsert' } );
+					ListToUpdateDE.push( list.ID );
+					// we have a match. The user has checked the list
+					var checkedThisList = true;
+				} // end of whether this checked list matches the current list.ID iteration
+			} // end of looping through the checked lists to find out if a user checked each list.
+
+
+			// loop through the lists that the user is a member of
+			for (var d=0; d < sublists.length; d++) {
+				// the user didn't check the list? Ok, let's flag them as unsubscribed if they were actually on the list.
+				if(sublists[d].List.ID == list.ID) {
+					if(checkedThisList == false) {
+						ListToUpdate.push( { 'Status': 'Unsubscribed', 'ID': list.ID, 'Action': 'Upsert' } );
+					}
+				}
+			}
+			
+        } // end of looping through all of our Lists
+
+		// initialize our subscriber
+		var sub = Subscriber.Init(sk);
+		// create a list array
+		var newSub = { "Lists":{} };
+		// add the lists from above to our array
+		newSub.Lists = ListToUpdate;
+
+		if(unsubFromAll == "true")  {
+			newSub.Status = 'Unsubscribed' ;
+			// using this to figure out whether unsub from all checkbox should be checked
+			unsubFromAllStatus = 'Unsubscribed';
+			if(jid != 0) {
+				var u1 = logUnSubJS(jid, sk, lid, bid);
+			}
+		} else { 
+			// they didn't unsubscribe from all, then let's make sure they're flagged as Active on All Subscribers list
+			// this will ensure that a user who re-subscribes will be Active
+			newSub.Status = 'Active';
+			// using this to figure out whether unsub from all checkbox should be checked
+			unsubFromAllStatus = 'Active';
+		}
+
+		// update the subscriber object with the list info
+		var status = sub.Update(newSub);
+
+		if(status != "OK") {
+			isError = true;
+		} else { // if there are no errors, let's update the data extension for the subscriber
+
+			// This likely is not needed, but let's create a list of records that the user did not check
+			// loop through all lists that were displayed to the user
+			for (var y = 0; y < aAllLists.length; y++) {
+				// loop through the lists that were checked and find out what position it lives in on the allLists list.
+				for(d=0;d < aCheckedLists.length; d++) {
+					// Write("AllList index: " + aAllLists[y] + " aCheckedLists[d]=" + aCheckedLists[d] + "<br>");
+					if(aAllLists[y] == aCheckedLists[d]) {
+						// Write("remove position from allLists: " + y);
+						aAllLists.splice(y,1);		
+					}
+				}
+			}
+
+			/* Write("<br>");
+			Write(Stringify(ListToUpdateDE));
+			Write("<br>");
+			Write(Stringify(aAllLists)); */
+
+			var casinoGameRelatedEmails = "0";
+			var entertainmentRelatedEmails = "0";
+			var golfRelatedEmails = "0";
+			var hotelSpecialOfferRelatedEmails = "0";
+			var miscInformationRelatedEmails = "0";
+			var passportCardRelatedEmails = "0";
+
+			// loop through the checked lists. This is our mapping essentially to the data extension fields.  
+			for(k=0;k<ListToUpdateDE.length;k++) {
+				if(ListToUpdateDE[k] == "5694") {
+					casinoGameRelatedEmails = "1";
+				}
+				if(ListToUpdateDE[k] == "5695") {
+					entertainmentRelatedEmails = "1";
+				}
+				if(ListToUpdateDE[k] == "5696") {
+					golfRelatedEmails = "1";
+				}
+				if(ListToUpdateDE[k] == "5697") {
+					hotelSpecialOfferRelatedEmails = "1";
+				}
+				if(ListToUpdateDE[k] == "5698") {
+					miscInformationRelatedEmails = "1";
+				}
+				if(ListToUpdateDE[k] == "5699") {
+					passportCardRelatedEmails = "1";
+				}
+			}
+
+
+			/* set the js variables to ampscript variables */
+			Variable.SetValue("@casinoGameRelatedEmails", casinoGameRelatedEmails);
+			Variable.SetValue("@entertainmentRelatedEmails", entertainmentRelatedEmails);
+			Variable.SetValue("@golfRelatedEmails", golfRelatedEmails);
+			Variable.SetValue("@hotelSpecialOfferRelatedEmails", hotelSpecialOfferRelatedEmails);
+			Variable.SetValue("@miscInformationRelatedEmails", miscInformationRelatedEmails);
+			Variable.SetValue("@passportCardRelatedEmails", passportCardRelatedEmails);
+			Variable.SetValue("@sk", sk);
+	</script>
+
+			<script runat="server" language="ampscript">
+				/* only save if we have a subscriberkey*/
+				if not empty(@sk) then
+					set @saveData = UpsertData(
+													@dekey, 1
+													, "Subscriber_Key"										,		@sk
+													, "Casino_Game_Related_Emails"						, 		@casinoGameRelatedEmails
+													, "Entertainment_Related_Emails"						, 		@entertainmentRelatedEmails
+													, "Golf_Related_Emails"								, 		@golfRelatedEmails
+													, "Hotel_Special_Offer_Related_Emails"				, 		@hotelSpecialOfferRelatedEmails
+													, "Misc_Information_Related_Emails"					, 		@miscInformationRelatedEmails
+													, "Passport_Card_Related_Emails"						, 		@passportCardRelatedEmails
+													, "LastModified"										,		Now()
+												)
+				endif
+			</script>
+
+	<script runat="server">
+
+		}
+
+	} else {  // if the user has not submitted the form, let's get their subscriber key from ET system personalization string
+
+	
+	} // **** END OF IF FORM WAS SUBMITTED ****
+
+ 		var de = DataExtension.Init("Subscribers");
+        var subscriberLookupDE = de.Rows.Retrieve({Property:"Subscriber_Key",SimpleOperator:"equals",Value:sk});
+        var deLen = subscriberLookupDE.length;
+
+        var subscriberFound = false;
+
+		var aCheckedLists = new Array();
+
+		// only continue if we have a record for this subscribe in the DE
+        if (deLen > 0) {
+            var row = subscriberLookupDE[0];
+
+			// set js variables equal to the values from the DE for this subscriber
+			var casino = row["Casino_Game_Related_Emails"];
+			var entertainment = row["Entertainment_Related_Emails"];
+			var golf = row["Golf_Related_Emails"];
+			var hotel = row["Hotel_Special_Offer_Related_Emails"];
+			var misc = row["Misc_Information_Related_Emails"];
+			var passport = row["Passport_Card_Related_Emails"];
+			subscriberFound = true;
+
+			// default the checked values for the specific lists (another mapping of DE name to list id)
+			if(casino == "True") {
+				aCheckedLists.push(5694);	
+			}
+			if(entertainment == "True") {
+				aCheckedLists.push(5695);	
+			}
+			if(golf == "True") {
+				aCheckedLists.push(5696);	
+			}
+			if(hotel == "True") {
+				aCheckedLists.push(5697);	
+			}
+			if(misc == "True") {
+				aCheckedLists.push(5698);	
+			}
+			if(passport == "True") {
+				aCheckedLists.push(5699);	
+			}
+        }
+
+
+
+	var unsubFromAllchecked = "";
+
+	// is the user unsubscribed from all?  Then let's flag the unsubfromall checkbox accordingly
+	if(unsubFromAllStatus == 'Unsubscribed') {
+		unsubFromAllchecked = 'checked="checked"';
+	}
+
+	// logUnSub function
+	function logUnSubJS(jobID, subKey, listID, batchID) {
+		var lue, lue_prop;
+		
+		lue = Platform.Function.CreateObject("ExecuteRequest");
+		Platform.Function.SetObjectProperty(lue,"Name","LogUnsubEvent");
+		
+		//For accounts using the subscriber key functionality
+		lue_prop = Platform.Function.CreateObject("APIProperty");
+		Platform.Function.SetObjectProperty(lue_prop, "Name", "SubscriberKey");
+		Platform.Function.SetObjectProperty(lue_prop, "Value", subKey);
+		Platform.Function.AddObjectArrayItem(lue, "Parameters", lue_prop);
+	
+		lue_prop = Platform.Function.CreateObject("APIProperty");
+		Platform.Function.SetObjectProperty(lue_prop, "Name", "JobID");
+		Platform.Function.SetObjectProperty(lue_prop, "Value", jobID);
+		Platform.Function.AddObjectArrayItem(lue, "Parameters", lue_prop);
+		
+		lue_prop = Platform.Function.CreateObject("APIProperty");
+		Platform.Function.SetObjectProperty(lue_prop, "Name", "ListID");
+		Platform.Function.SetObjectProperty(lue_prop, "Value", listID);
+		Platform.Function.AddObjectArrayItem(lue, "Parameters", lue_prop);
+		
+		lue_prop = Platform.Function.CreateObject("APIProperty");
+		Platform.Function.SetObjectProperty(lue_prop, "Name", "BatchID");
+		Platform.Function.SetObjectProperty(lue_prop, "Value", batchID);
+		Platform.Function.AddObjectArrayItem(lue, "Parameters", lue_prop);                                                
+		
+		lue_prop = Platform.Function.CreateObject("APIProperty");
+		Platform.Function.SetObjectProperty(lue_prop, "Name", "Reason");
+		Platform.Function.SetObjectProperty(lue_prop, "Value", "Profile Center Unsubscribe");
+		Platform.Function.AddObjectArrayItem(lue, "Parameters", lue_prop);
+		
+		var statusAndRequest = [0,0];
+		
+		var Response = Platform.Function.InvokeExecute(lue, statusAndRequest);	
+		// Write(Stringify(Response) + "<br><br>");
+	}
+</script>
+
+
+
+
+	<title>WinStar World Casino Unsubscribe Center</title>
+	
+	<style type="text/css">
+		body {font-family: Verdana, Arial, sans-serif;}
+		a {color: #330000;}
+		img {display: block; margin: 0px;}
+	</style>
+
+
+
+	<table width="850" border="0" cellpadding="0" cellspacing="0" align="center" bgcolor="#000000">
+		
+	<!-- Spacer -->
+        <tbody><tr>
+			<td colspan="3" width="850" bgcolor="#000000" valign="top" align="center" height="14">
+				<img style="display: block;" src="./WinStar World Casino Unsubscribe Center_files/hero_shadow.jpg" width="850" height="14">
+			</td>
+		</tr>
+    <!-- End of Spacer Area -->
+        
+    <!-- Header Area, do not modify-->
+		<tr>
+			<td colspan="3">
+				<table width="850" border="0" cellpadding="0" cellspacing="0" align="center" bgcolor="#000000">
+					<tbody><tr>
+					    <td width="13"></td>
+						<td width="149"><img style="display: block;" src="./WinStar World Casino Unsubscribe Center_files/WS-Lgo-top.jpg" width="90" height="91" border="0"></td>
+			            <td width="675">
+			                <p style="font-size: 13px; text-align: right; color: #ffffff;">1.800.622.6317&nbsp;&nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;&nbsp;<a href="http://winstarworldcasino.com/directions" target="_blank" style="color:#ffffff" ;="">Directions</a></p>
+			                <img style="display: block;" src="./WinStar World Casino Unsubscribe Center_files/Menu-Bar.jpg" width="675" height="42" border="0" usemap="#main_nav_map">
+                            <map name="main_nav_map">
+                                <area shape="rect" coords="0,0,112,42" href="http://winstarworldcasino.com/accommodations" target="_blank" alt="Accomodations" title="Accomodations">	
+                                <area shape="rect" coords="113,0,168,42" href="http://winstarworldcasino.com/casino" target="_blank" alt="Casino" title="Casino">				
+                                <area shape="rect" coords="169,0,249,42" href="http://winstarworldcasino.com/events/promotions+poker+off_track_betting+bingo" target="_blank" alt="Promotions" title="Promotions">
+                                <area shape="rect" coords="250,0,344,42" href="http://winstarworldcasino.com/entertainment" target="_blank" alt="Entertainment" title="Entertainment">
+                                <area shape="rect" coords="345,0,400,42" href="http://winstarworldcasino.com/dining" target="_blank" alt="Dining" title="Dinig">
+                                <area shape="rect" coords="401,0,450,42" href="http://winstarworldcasino.com/golf" target="_blank" alt="Golf" title="Golf">
+                                <area shape="rect" coords="451,0,517,42" href="http://winstarworldcasino.com/amenities" target="_blank" alt="Amenities" title="Amenities">
+                                <area shape="rect" coords="518,0,583,42" href="http://winstarworldcasino.com/meetings" target="_blank" alt="Meetings" title="Meetings">
+                                <area shape="rect" coords="584,0,675,42" href="http://winstarworldcasino.com/players-club" target="_blank" alt="Players Club" title="Players Club">
+                            </map></td>
+			            <td width="13"></td>
+					</tr>
+				</tbody></table>
+			</td>
+		</tr>
+	<!-- End of Header Area -->
+        
+    <!-- Spacer -->
+        <tr>
+			<td colspan="3" width="600" bgcolor="#000000" valign="top" align="center" height="14">
+				<img style="display: block;" src="./WinStar World Casino Unsubscribe Center_files/hero_shadow.jpg" width="600" height="14">
+			</td>
+		</tr>
+    <!-- End of Spacer Area -->
+        
+    <!-- Main Content Area -->
+	<!-- Spacer -->
+        <tr>
+			<td colspan="3" width="600" bgcolor="#000000" valign="top" align="center" height="14">
+				<img style="display: block;" src="./WinStar World Casino Unsubscribe Center_files/hero_shadow.jpg" width="600" height="14">
+			</td>
+		</tr>
+    <!-- End of Spacer Area -->
+		
+		
+		<tr>
+			<td width="13"></td>
+			<td width="575">   
+				
+	<!-- Edit Main Message Here -->
+		
+				<p style="font-size: 24px; text-align: LEFT; color: #ffffff;">EMAIL OPT-OUT FORM</p>
+				<p style="font-size: 14px; text-align: left; color: #ffffff;">
+				<script type="text/javascript" runat="server">
+					if(formSave != undefined) {
+							if(isError == "") {
+				</script>
+								Thanks for taking the time to update your email preferences! We have saved your changes. Have a great day and we hope to see you soon at the WinStar World Casino and Resort!		
+				<script type="text/javascript" runat="server">
+							} else {
+				</script>
+								We're sorry, there has been an error in updating your email preferences.  Please try again later or contact us at <a href="mailto:info@winstarworld.com">info@winstarworld.com</a>.
+				<script type="text/javascript" runat="server">
+							}
+						} else {
+				</script>
+							Welcome to the WinStar World Casino and Resort email unsubscribe center. We want to make sure that we only send you emails that you want to receive.
+							<br><br>
+							Please uncheck the boxes below to indicate which emails you no longer want to receive.
+				<script type="text/javascript" runat="server">
+						}
+				</script>
+				</p>
+				<!-- <p style="font-size: 14px; text-align: left; color: #ffffff;">Please select the types of emails you would like to receive from The WinStar World Casino and Resort:</p> -->
+				<ul style="font-size: 14px; text-align: left; color: #ffffff;">
+							<script type="text/javascript" runat="server">
+			 		
+							var hasPublicPubLists = false;
+
+							for (var i = 0; i < length; i++) {
+								var list = allPublicationLists[i];
+
+								if (list.Type == "Public" ) {
+									hasPublicPubLists = true;
+									break;
+								}
+
+							}
+
+							if (hasPublicPubLists) {
+
+								for (var i = 0; i < length; i++) {
+								  var list = allPublicationLists[i];
+
+								  if (list.Type == "Private" ) continue;
+									// initialize the list object for this specific list id
+									var listObj = List.Retrieve({ Property: "ID", SimpleOperator: "equals", Value: list.ID });
+									// find out info about this subscriber related to this list
+									var listSubscriber = List.Init(listObj[0].CustomerKey).Subscribers.Retrieve({Property:"SubscriberKey", SimpleOperator:"equals", Value : sk});
+									var listID = list.ID;
+									var listName = list.ListName;
+									var listDesc = list.Description;
+
+	
+									// is the user subscribed to this list?  if so, check the box.									
+									// if( (listSubscriber.length > 0 && listSubscriber[0].Status == "Active")) {
+									//	var checked = 'checked="checked"';
+									//} else {
+									//	var checked = '';
+									//}
+									var checked = "";
+
+									for(q=0;q < aCheckedLists.length; q++) {
+										if(listID == aCheckedLists[q]) {
+											var checked = 'checked="checked"';
+										}
+									}
+                            </script>
+								<form name="frmdoaction" id="frmdoaction" action="file:///Users/joshleifeste/Downloads/%%=v(@subcenter)=%%" method="post">
+
+								<label>
+									<input type="checkbox" value="&lt;ctrl:var name=" listid"="">" name="publicationList" <ctrl:var name="checked"> /&gt;
+									<b><ctrl:var name="listName"></ctrl:var></b> 
+									<script type="text/javascript" runat="server">if(listDesc != '') {</script> - <ctrl:var name="listDesc"><script type="text/javascript" runat="server">}</script>
+									<input type="hidden" value="&lt;ctrl:var name=" listid"="">" name="allLists" /&gt;
+								</ctrl:var></ctrl:var></label>
+								<br>
+                            <script type="text/javascript" runat="server">
+                                }
+                            } else {
+                            </script>
+
+                            <label><b>No publications are currently available</b></label>
+
+                            <script type="text/javascript" runat="server">
+                            }
+
+								// don't show button if there are no public lists
+								if (hasPublicPubLists) {
+                            </script>
+							   <br>
+                            <input type="submit" name="submitForm" id="submitForm" value="Update">
+							 	<script type="text/javascript" runat="server">
+									} // end of not showing button if there are no public lists
+								</script>
+					    </form>     					
+				</ul>
+			            
+	<!-- End Edit Main Message Here -->
+			
+			</td>
+			<td width="12"></td>
+		</tr>
+		
+	<!-- End of Main Content Area -->
+
+    <!-- Spacer -->
+        <tr>
+			<td colspan="3" width="600" bgcolor="#000000" valign="top" align="center" height="14">
+				<img style="display: block;" src="./WinStar World Casino Unsubscribe Center_files/hero_shadow.jpg" width="600" height="14">
+			</td>
+		</tr>
+    <!-- End of Spacer Area -->
+
+    <!-- Footer Area, do not modify -->
+        
+		<tr>
+			<td colspan="3" width="850" height="102">
+				<img style="display: block;" src="./WinStar World Casino Unsubscribe Center_files/footer.jpg" width="850" height="102" border="0">
+			</td>
+		</tr>
+	</tbody></table>
+<!-- Footer Disclaimer Area, do not modify -->
+	<table width="850" cellpadding="0" cellspacing="0" align="center">
+		<tbody><tr>
+			<td colspan="3" bgcolor="#ffffff">
+				<p style="text-align: center; font-size: 11px; margin-top: 20px; margin-bottom: 20px; padding-left: 10px; padding-right: 10px;">
+					<b><a href="http://www.ncpgambling.org/help-treatment/national-helpline-1-800-522-4700" target="_blank" style="color:#330000;">National Council on Problem Gambling</a></b><br>or call 1-800-522-4700<br><br>
+					This is an advertisement from:<br>WinStar World Casino and Resort<br>777 Casino Avenue<br>Thackerville, OK 73459</p>
+					
+			</td>
+		</tr>
+	</tbody></table>
+<!-- End of Footer Disclaimer Area -->
+
+
+</body></html>
