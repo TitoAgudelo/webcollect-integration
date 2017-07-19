@@ -8,19 +8,13 @@ module.exports = {
   module: {
 
     rules: [
-      /*
-      your other rules for JavaScript transpiling go in here
-      */
-      { // regular css files
-        test: /\.css$/,
-        loader: ExtractTextPlugin.extract({
-          loader: 'css-loader?importLoaders=1',
-        })
-      },
-      { // sass / scss loader for webpack
-        test: /\.(sass|scss)$/,
-        loader: ExtractTextPlugin.extract(['css-loader', 'sass-loader'])
-      }
+        {
+            test: /\.scss$/,
+            use: ExtractTextPlugin.extract({
+                fallback: 'style-loader',
+                use: ['css-loader','postcss-loader','sass-loader']
+            })
+        }
     ]
   },
   plugins: [
