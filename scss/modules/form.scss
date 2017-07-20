@@ -34,11 +34,34 @@ label {
 }
 
 /* active state */
-input:focus ~ label, input:valid ~ label 		{
+input:focus ~ label, input:valid ~ label, .birth {
   top:-10px;
   font-size:10px;
   color:$gray;
   letter-spacing: 2;
+}
+
+.form-group {
+    margin-bottom: 1rem;
+    width: 100%;
+
+    .group-radio {
+        @include flex-wrap;
+        align-items: center;
+        height: 40px;
+
+        input {
+            height: auto;
+            width: auto;
+        }
+
+        label {
+            @include text;
+            color: $white;
+            position: relative;
+            top: 0;
+        }
+    }
 }
 
 /* BOTTOM BARS ================================= */

@@ -60,6 +60,7 @@ p {
 
         form {
             @include flex-wrap;
+            border-radius: 5px;
 
             .submit {
                 width: 100%;
@@ -77,4 +78,8 @@ p {
             }
         }
     }
+}
+
+footer {
+    margin-top: 4rem;
 }
