@@ -1,3 +1,80 @@
+$white: #F7F7F7;
+$gray: #BABAC1;
+$red: #D84E5B;
+
+
 body {
     background-color: #000000;
+    margin: 0;
+}
+
+@mixin title {
+    font-family: 'PT Sans', sans-serif;
+    font-size: 24px;
+}
+
+@mixin text {
+    font-family: Helvetica, sans-serif;
+    font-size: 14px;
+}
+
+@mixin flex-wrap {
+    display: flex;
+    flex-wrap: wrap;
+}
+
+h2 {
+    @include title;
+}
+
+p {
+    @include text;
+}
+
+.main {
+    margin: 0 5rem;
+
+    .header {
+        padding: .3rem 0;
+
+        .navigation {
+            border-bottom: 1px dashed $white;
+        }
+
+        ul {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: space-between;
+            list-style: none;
+            padding: 0;
+        }
+    }
+
+    .introduction {
+        color: $white;
+    }
+
+    .form {
+        background-color: #313439;
+        padding: 2rem;
+
+        form {
+            @include flex-wrap;
+
+            .submit {
+                width: 100%;
+                text-align: center;
+
+                .btn {
+                    background-color: $red;
+                    border: none;
+                    color: $white;
+                    cursor: pointer;
+                    font-size: 10px;
+                    text-transform: uppercase;
+                    padding: .7rem 2rem;
+                }
+            }
+        }
+    }
 }
