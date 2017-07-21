@@ -30,56 +30,49 @@
                 </nav>
             </header>
             <section class="introduction">
-                <h2>EMAIL OPT-IN FORM</h2>
+                <h2>EMAIL OPT-OUT FORM</h2>
                 <p>Welcome to the WinStar World Casino and Resort email unsubscribe center. We want to make sure that we only send you emails that you want to receive.</p>
             </section>
-
-
             <section class="form">
                 <form name="frmdoaction" id="frmdoaction" action="http://pages.reply.winstaremail.com/page.aspx?qs=472529ec60bdf32acbb6abd95e56cb8d730fe119fb7a83aa" method="post">
-                    <label>
-                        <input type="checkbox" value="5694" name="publicationList">
-                        <b>Casino Game Related Emails</b>
-
-                        <input type="hidden" value="5694" name="allLists">
-                    </label>
-                    <br>
-                    <label>
-                        <input type="checkbox" value="5695" name="publicationList">
-                        <b>Entertainment Related Emails</b>
-
-                        <input type="hidden" value="5695" name="allLists">
-                    </label>
-                    <br>
-                    <label>
-                        <input type="checkbox" value="5696" name="publicationList">
-                        <b>Golf Related Emails</b>
-
-                        <input type="hidden" value="5696" name="allLists">
-                    </label>
-                    <br>
-                    <label>
-                        <input type="checkbox" value="5697" name="publicationList">
-                        <b>Hotel Special Offer Related Emails</b>
-                        <input type="hidden" value="5697" name="allLists">
-                    </label>
-                    <br>
-                    <label>
-                        <input type="checkbox" value="5698" name="publicationList">
-                        <b>Misc. Informational Related Emails</b>
-
-                        <input type="hidden" value="5698" name="allLists">
-                    </label>
-                    <br>
-                    <label>
-                        <input type="checkbox" value="5699" name="publicationList">
-                        <b>Passport Card Special Offer Related Emails</b>
-
-                        <input type="hidden" value="5699" name="allLists">
-                    </label>
-                    <br>
-                        <br>
-                    <input type="submit" name="submitForm" id="submitForm" value="Update">
+                    <div class="form-group">
+                        <div class="submit">
+                            <p class="description">If you want to un-suscribe select the list bellow and submit</p>
+                        </div>
+                        <div class="group-radio">
+                            <input type="checkbox" value="5694" name="publicationList">
+                            <label>Casino Game Related Emails</label>
+                            <input type="hidden" value="5694" name="allLists">
+                        </div>
+                        <div class="group-radio">
+                            <input type="checkbox" value="5695" name="publicationList">
+                            <label>Entertainment Related Emails</label>
+                            <input type="hidden" value="5695" name="allLists">
+                        </div>
+                        <div class="group-radio">
+                            <input type="checkbox" value="5696" name="publicationList">
+                            <label>Golf Related Emails</label>
+                            <input type="hidden" value="5696" name="allLists">
+                        </div>
+                        <div class="group-radio">
+                            <input type="checkbox" value="5697" name="publicationList">
+                            <label>Hotel Special Offer Related Emails</label>
+                            <input type="hidden" value="5697" name="allLists">
+                        </div>
+                        <div class="group-radio">
+                            <input type="checkbox" value="5698" name="publicationList">
+                            <label>Misc. Informational Related Emails</label>
+                            <input type="hidden" value="5698" name="allLists">
+                        </div>
+                        <div class="group-radio">
+                            <input type="checkbox" value="5699" name="publicationList">
+                            <label>Passport Card Special Offer Related Emails</labelb>
+                            <input type="hidden" value="5699" name="allLists">
+                        </div>
+                        <div class="submit">
+                            <button class="btn">Unsuscribe</button>
+                        </div>
+                    </div>
                 </form>
             </section>
         </main>

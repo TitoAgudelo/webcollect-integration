@@ -45,6 +45,14 @@ input:focus ~ label, input:valid ~ label, .birth {
     margin-bottom: 1rem;
     width: 100%;
 
+    .description {
+        color: $white;
+        font-weight: bold;
+        font-size: 18px;
+        text-align: left;
+        text-transform: uppercase;
+    }
+
     .group-radio {
         @include flex-wrap;
         align-items: center;
