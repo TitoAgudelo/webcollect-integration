@@ -41,17 +41,17 @@ input:focus ~ label, input:valid ~ label, .birth {
   letter-spacing: 2;
 }
 
+.description {
+  color: $white;
+  font-weight: bold;
+  font-size: 18px;
+  text-align: left;
+  text-transform: uppercase;
+}
+
 .form-group {
     margin-bottom: 1rem;
     width: 100%;
-
-    .description {
-        color: $white;
-        font-weight: bold;
-        font-size: 18px;
-        text-align: left;
-        text-transform: uppercase;
-    }
 
     .group-radio {
         @include flex-wrap;

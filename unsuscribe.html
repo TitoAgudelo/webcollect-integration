@@ -34,11 +34,23 @@
                 <p>Welcome to the WinStar World Casino and Resort email unsubscribe center. We want to make sure that we only send you emails that you want to receive.</p>
             </section>
             <section class="form">
-                <form name="frmdoaction" id="frmdoaction" action="http://pages.reply.winstaremail.com/page.aspx?qs=472529ec60bdf32acbb6abd95e56cb8d730fe119fb7a83aa" method="post">
+                <form name="frmdoaction" id="frmdoaction" action="http://cl.exct.net/subscribe.aspx?lid=49407" method="post">
+                    <input type="hidden" name="usub" value="http://pages.reply.winstaremail.com/page.aspx?QS=472529ec60bdf32a808f7c6939575405bc8aedc6657cd3cc" />
+                    <input type=hidden name="thx" value="https://www.google.com">
+                    <input type=hidden name="err" value="http://www.error.com">
+                    <input type=hidden name="SubAction" value="unsub">
+                    <input type=hidden name="MID" value="6274574">
+
+                    <div class="submit">
+                        <p class="description">If you want to un-suscribe select the list bellow and submit</p>
+                    </div>
+                    <div class="group">
+                        <input type="text" name="Email Address" required>
+                        <span class="highlight"></span>
+                        <span class="bar"></span>
+                        <label>Email</label>
+                    </div>
                     <div class="form-group">
-                        <div class="submit">
-                            <p class="description">If you want to un-suscribe select the list bellow and submit</p>
-                        </div>
                         <div class="group-radio">
                             <input type="checkbox" value="5694" name="publicationList">
                             <label>Casino Game Related Emails</label>
@@ -69,7 +81,7 @@
                             <label>Passport Card Special Offer Related Emails</labelb>
                             <input type="hidden" value="5699" name="allLists">
                         </div>
-                        <div class="submit">
+                        <div id="submit" class="submit">
                             <button class="btn">Unsuscribe</button>
                         </div>
                     </div>

@@ -57,6 +57,8 @@ p {
     .form {
         background-color: #313439;
         padding: 2rem;
+        max-width: 42rem;
+        margin: 2rem;
 
         form {
             @include flex-wrap;

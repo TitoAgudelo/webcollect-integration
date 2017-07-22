@@ -36,12 +36,14 @@
 
 
             <section class="form">
-                <form action="http://cl.exct.net/subscribe.aspx?lid=49283" name="subscribeForm" method="post" onSubmit="return checkForm();">
+                <form action="http://cl.exct.net/subscribe.aspx?lid=49407" name="subscribeForm" method="post">
                     <input type="hidden" name="usub" value="http://pages.reply.winstaremail.com/page.aspx?QS=472529ec60bdf32a808f7c6939575405bc8aedc6657cd3cc" />
                     <input type=hidden name="thx" value="https://www.google.com">
-                    <input type=hidden name="err" value="http://www.bad.com">
+                    <input type=hidden name="err" value="http://www.error.com">
                     <input type=hidden name="SubAction" value="sub">
                     <input type=hidden name="MID" value="6274574">
+                    <input type="hidden" name="Subscriber Key" value="" />
+
                     <div class="group">
                         <input type="text" name="Email Address" required>
                         <span class="highlight"></span>
@@ -55,10 +57,10 @@
                         <label>Full Name</label>
                     </div>
                     <div class="group">
-                        <input type="date" name="Birth Date" required>
+                        <input type="date" name="Birthday" required>
                         <span class="highlight"></span>
                         <span class="bar"></span>
-                        <label class="birth">Birth Date</label>
+                        <label class="birth">Birthday</label>
                     </div>
                     <div class="group">
                         <input type="number" name="Passport" required>
@@ -77,7 +79,7 @@
                         </div>
                     </div>
                     <div class="submit">
-                        <button class="btn">Suscribe</button>
+                        <button id="submit" class="btn">Suscribe</button>
                     </div>
                 </form>
             </section>
