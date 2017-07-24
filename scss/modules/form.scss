@@ -4,17 +4,16 @@
   margin-bottom:45px;
   padding-right: 30px;
 }
-input {
-  @include text;
-  color: $white;
-  font-size:18px;
-  padding:10px 10px 10px 5px;
-  display:block;
-  height: 42px;
-  width:300px;
-  border:none;
-  border-bottom: 1px solid $gray;
-  background: transparent;
+input, textarea {
+  border: 1px solid #a59992;
+  color: #8f8985;
+  font-size: 13px;
+  font-weight: 300;
+  line-height: 1.625;
+  padding: 10px 8px 9px;
+  border-radius: 3px;
+  background-clip: padding-box;
+  background-color: #e3e3e3;
 }
 input:focus { outline:none; }
 
