@@ -2,7 +2,7 @@ import { suscribe } from './modules/request';
 
 let url = 'http://cl.exct.net/subscribe.aspx?';
 
-function submitSuscribe() {
+export function submitSuscribe() {
   let email = document.getElementById("email").value;
   let firstName = document.getElementById("firstName").value;
   let lastName = document.getElementById("lastName").value;
@@ -18,23 +18,25 @@ function submitSuscribe() {
   }).catch(function(err) {
     console.log('error');
   });
-
 }
 
 export default function init() {
-  submitSuscribe();
+  document.getElementById("submit").addEventListener("click", function () {
+    checkForm();
+    form.submit();
+  });
 }
 
 // isEmail (STRING s [, BOOLEAN emptyOK])
 // whitespace characters
-var whitespace = " \t\n\r";
+let whitespace = " \t\n\r";
 
 //
 // Email address must be of form a@b.c ... in other words:
 // * there must be at least one character before the @
 // * there must be at least one character before and after the .
 // * the characters @ and . are both required
-function isValidEmail(s)
+export function isValidEmail(s)
 {
     if (isEmpty(s)) return false;
 
@@ -66,14 +68,14 @@ function isValidEmail(s)
 }
 
 // Check whether string s is empty.
-function isEmpty(s)
+export function isEmpty(s)
 {
     return ((s == null) || (s.length == 0))
 }
 
 // Returns true if string s is empty or
 // whitespace characters only.
-function isWhitespace(s)
+export function isWhitespace(s)
 {
     var i;
 
@@ -94,18 +96,31 @@ function isWhitespace(s)
     return true;
 }
 
-function checkForm() {
+export function initInfo() {
+  document.subscribeForm.elements['Subscriber Key'].value = document.subscribeForm.elements['Subscriber Key'].value + document.subscribeForm.elements["Email Address"].value;
+
+  if(document.subscribeForm.elements['Casino_Game_Related_Emails'].checked) {
+    document.subscribeForm.elements['Offer_1'].value = document.subscribeForm.elements['Offer_1'].value + ' True';
+  } else {
+    document.subscribeForm.elements['Offer_1'].value = document.subscribeForm.elements['Offer_1'].value + ' False';
+  }
+  if(document.subscribeForm.elements['Entertainment_Related_Emails'].checked) {
+    document.subscribeForm.elements['Offer_2'].value = document.subscribeForm.elements['Offer_2'].value + ' True';
+  } else {
+    document.subscribeForm.elements['Offer_2'].value = document.subscribeForm.elements['Offer_2'].value + ' False';
+  }
+}
+
+export function checkForm() {
     if (!isValidEmail(document.subscribeForm.elements['Email Address'].value)) {
         document.subscribeForm.elements['Email Address'].style.backgroundColor='yellow';
         alert("Please enter a valid Email Address. (name@host.com)");
         document.subscribeForm.elements['Email Address'].focus();
         return false;
     } else {
-        document.subscribeForm.elements['Subscriber Key'].value = 'WS_' + document.subscribeForm.elements["Email Address"].value;
+        initInfo();
     }
 }
 
-document.getElementById("submit").addEventListener("click", function () {
-  checkForm();
-  form.submit();
-});
+init();
+

@@ -80,6 +80,14 @@ p {
             }
         }
     }
+
+    .message {
+        color: $white;
+
+        h2 {
+            @include title;
+        }
+    }
 }
 
 footer {
