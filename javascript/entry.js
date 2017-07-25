@@ -97,14 +97,13 @@ export function isWhitespace(s)
 }
 
 export function initInfo() {
-  document.subscribeForm.elements['Subscriber Key'].value = document.subscribeForm.elements['Subscriber Key'].value + document.subscribeForm.elements["Email Address"].value;
-
-  if(document.subscribeForm.elements['Casino_Game_Related_Emails'].checked) {
+  document.subscribeForm.elements['ETSubscriberKey'].value = document.subscribeForm.elements['ETSubscriberKey'].value + document.subscribeForm.elements["Email Address"].value;
+  if(document.subscribeForm.elements['lid'][0].checked) {
     document.subscribeForm.elements['Offer_1'].value = document.subscribeForm.elements['Offer_1'].value + ' True';
   } else {
     document.subscribeForm.elements['Offer_1'].value = document.subscribeForm.elements['Offer_1'].value + ' False';
   }
-  if(document.subscribeForm.elements['Entertainment_Related_Emails'].checked) {
+  if(document.subscribeForm.elements['lid'][1].checked) {
     document.subscribeForm.elements['Offer_2'].value = document.subscribeForm.elements['Offer_2'].value + ' True';
   } else {
     document.subscribeForm.elements['Offer_2'].value = document.subscribeForm.elements['Offer_2'].value + ' False';
@@ -113,7 +112,6 @@ export function initInfo() {
 
 export function checkForm() {
     if (!isValidEmail(document.subscribeForm.elements['Email Address'].value)) {
-        document.subscribeForm.elements['Email Address'].style.backgroundColor='yellow';
         alert("Please enter a valid Email Address. (name@host.com)");
         document.subscribeForm.elements['Email Address'].focus();
         return false;

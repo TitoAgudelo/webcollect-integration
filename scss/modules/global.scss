@@ -36,12 +36,22 @@ p {
 
 .main {
     margin: 0 5rem;
+    max-width: 1080px;
 
     .header {
         padding: .3rem 0;
 
         .navigation {
             border-bottom: 1px dashed $white;
+
+            .nav-item {
+                align-items: center;
+                display: flex;
+
+                a {
+                    display: flex;
+                }
+            }
         }
 
         ul {
@@ -61,7 +71,6 @@ p {
         background-color: $brown-light;
         background-image: -webkit-linear-gradient(top, #e7e3e0, #c2b8b2);
         color: #000;
-        max-width: 46rem;
         margin: 2rem;
         padding: 2rem;
 
@@ -93,11 +102,21 @@ p {
                 justify-content: space-between;
 
                 .group {
-                    width: 49%;
+                    width: 48%;
                 }
 
                 .group-radio {
                     display: inline-block;
+
+                    input {
+                        width: auto;
+                    }
+
+                    span {
+                        font-size: 13px;
+                        font-weight: normal;
+                        line-height: 26px;
+                    }
                 }
 
                 .age {
@@ -177,5 +196,6 @@ p {
 }
 
 footer {
-    margin-top: 4rem;
+    max-width: 1080px;
+    margin: 4rem auto 0;
 }
