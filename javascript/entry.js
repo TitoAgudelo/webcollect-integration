@@ -108,6 +108,11 @@ export function initInfo() {
   } else {
     document.subscribeForm.elements['Offer_2'].value = document.subscribeForm.elements['Offer_2'].value + ' False';
   }
+  if(document.subscribeForm.elements['lid'][2].checked) {
+    document.subscribeForm.elements['Offer_3'].value = document.subscribeForm.elements['Offer_3'].value + ' True';
+  } else {
+    document.subscribeForm.elements['Offer_3'].value = document.subscribeForm.elements['Offer_3'].value + ' False';
+  }
 }
 
 export function checkForm() {

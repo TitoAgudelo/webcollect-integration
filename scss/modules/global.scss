@@ -35,7 +35,7 @@ p {
 }
 
 .main {
-    margin: 0 5rem;
+    margin: 0 auto;
     max-width: 1080px;
 
     .header {
@@ -196,6 +196,20 @@ p {
 }
 
 footer {
+    align-items: center;
+    background: url(http://image.reply.winstaremail.com/lib/fe8c12727260017a71/m/2/Background-Landscape.png?nocache=5) repeat-x;
+    display: flex;
+    justify-content: space-between;
     max-width: 1080px;
     margin: 4rem auto 0;
+    padding: 10px 1rem;
+
+    #image-win {
+        width: 88px;
+        height: 70px;
+    }
+
+    #image-adventure {
+        width: 150px;
+    }
 }
